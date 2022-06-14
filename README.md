@@ -31,10 +31,13 @@ A collection of useful Unity scripts I am using in my Unity games.
 
 - NPC.cs - The base class for a NPC object, do not use as a behaviour script.
 
+![Screenshot](https://i.imgur.com/14kpcm4.png)
+
 ### UI
 
 - Tooltip.cs - The tooltip class with various usage parameters, attach to the tooltip trigger object.
 
+![Screenshot](https://i.imgur.com/i2XE0RR.png)
 
 ### Example files
 
