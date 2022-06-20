@@ -14,14 +14,14 @@ public class Trigger : MonoBehaviour
     [SerializeField] TriggerMode triggerMode = TriggerMode.Trigger;
 
     [Header("Animator")]
-    [SerializeField] Animator animator;
+    [SerializeField] public Animator animator;
     [SerializeField] string animatorTrigger = "";
 
     [Header("Custom Callbacks")]
     [SerializeField] EventTrigger.TriggerEvent customCallback;
 
     // Start is called before the first frame update
-    void Start()
+    public virtual void Start()
     {
         
     }

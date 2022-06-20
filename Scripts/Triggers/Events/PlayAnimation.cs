@@ -4,6 +4,10 @@ using UnityEngine;
 
 public class PlayAnimation : Trigger
 {
+    [Header("Animation")]
+    [SerializeField] Animator animatorToPlay;
+    [SerializeField] string animationToPlay = "";
+
     // Start is called before the first frame update
     void Start()
     {
@@ -19,5 +23,10 @@ public class PlayAnimation : Trigger
     public override void OnTriggerEvent(int eventId = 0)
     {
         base.OnTriggerEvent(eventId);
+
+        if (animatorToPlay != null)
+        {
+            animatorToPlay.Play(animationToPlay, 0, 0);
+        }
     }
 }

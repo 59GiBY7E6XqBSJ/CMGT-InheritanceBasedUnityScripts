@@ -9,8 +9,9 @@ public class ChangeScene : Trigger
     protected private bool hasBeenChanged = false;
 
     // Start is called before the first frame update
-    void Start()
+    public override void Start()
     {
+        base.Start();
     }
 
     // Update is called once per frame
@@ -25,6 +26,7 @@ public class ChangeScene : Trigger
 
         if (!hasBeenChanged)
         {
+            //SceneManager.LoadScene(sceneName, LoadSceneMode.Additive);
             StartCoroutine(LoadAsyncScene());
             hasBeenChanged = true;
         }

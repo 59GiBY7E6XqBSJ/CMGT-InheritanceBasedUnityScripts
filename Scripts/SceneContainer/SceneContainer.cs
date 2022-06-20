@@ -2,11 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class NPC : MonoBehaviour
+public class SceneContainer : MonoBehaviour
 {
     [Header("Scripts")]
     [SerializeField] public Player player;
-    
+    [SerializeField] public Camera camera;
+
     // Start is called before the first frame update
     public virtual void Start()
     {

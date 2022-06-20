@@ -22,6 +22,7 @@ public class Footsteps : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // Only play footsteps if the player is on the ground
         if (isOnSurface)
         {
             isWalking = Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.D);

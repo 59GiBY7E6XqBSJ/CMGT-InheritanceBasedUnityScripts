@@ -18,14 +18,14 @@ public class ScriptedScene : MonoBehaviour
     [SerializeField] EventTrigger.TriggerEvent customCallback;
 
     // Start is called before the first frame update
-    void Start()
+    public virtual void Start()
     {
         BaseEventData eventData = new BaseEventData(EventSystem.current);
         customCallback.Invoke(eventData);
     }
 
     // Update is called once per frame
-    void Update()
+    public virtual void Update()
     {
         
     }

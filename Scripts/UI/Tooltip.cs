@@ -7,15 +7,25 @@ using UnityEngine.Events;
 
 public class Tooltip : MonoBehaviour
 {
+    private protected SceneContainer sceneContainer;
+    private protected Player player;
+    
+    // Is the tooltip active
     private protected bool isTooltipActive = false;
 
+    // Has player interacted with the tooltip
+    private protected bool interactedWith = false;
+
+    // Layermask for the tooltip interactions
     private protected int layerMask;
 
-    [SerializeField]
-    Camera camera;
-    [SerializeField]
-    GameObject tooltip;
-
+    [Header("Activation")]
+    [SerializeField] public float distance = 10.0f;
+    [SerializeField] public bool isVehicleTooltip = false;
+    
+    [SerializeField] Camera camera;
+    [SerializeField] GameObject tooltip;
+    
     enum CentreMode
     {
        Screen = 0, 
@@ -27,13 +37,22 @@ public class Tooltip : MonoBehaviour
 
     [SerializeField]
     EventTrigger.TriggerEvent pressInteractCallback;
-    [SerializeField]
-    bool disableOnInteract = true;
-    private protected bool interactedWith = false;
-
+    [SerializeField] bool disableOnInteract = true;
+    
     // Start is called before the first frame update
     void Start()
     {
+        sceneContainer = FindObjectOfType<SceneContainer>();
+
+        if (sceneContainer != null)
+        {
+            player = sceneContainer.player;
+            camera = sceneContainer.camera;
+            Debug.Log("[Tooltip] SceneContainer Aquired");
+        }
+
+        //tooltip = GameObject.Find(tooltipName);
+
         tooltip.active = false;
 
         layerMask = LayerMask.GetMask("Tooltip");
@@ -50,16 +69,38 @@ public class Tooltip : MonoBehaviour
             OnTooltipShow();
         }
 
-        Ray ray = camera.ScreenPointToRay(Input.mousePosition);
-        RaycastHit hit;
-        if (Physics.Raycast(ray, out hit, 1000.0f, layerMask) && hit.collider.gameObject == gameObject)
+        if (camera != null)
         {
-            ShowTooltip(hit.collider.gameObject); 
+            Ray ray = camera.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
+            if (Physics.Raycast(ray, out hit, distance, layerMask) && hit.collider.gameObject == gameObject)
+            {
+                //Check if hit.collider.gameObject has a tooltip script
+                Tooltip tooltipScript = hit.collider.gameObject.GetComponent<Tooltip>();
+                if (tooltipScript != null)
+                {
+                    if (!player.isOnVehicle)
+                        ShowTooltip(hit.collider.gameObject); 
+                    else if (player.isOnVehicle && tooltipScript.isVehicleTooltip)
+                        ShowTooltip(hit.collider.gameObject);   
+                }
+                else 
+                {
+                    if (!player.isOnVehicle)
+                        ShowTooltip(hit.collider.gameObject); 
+                }
+            }
+            else
+            {        
+                tooltip.active = false;
+                isTooltipActive = false;
+            }
         }
-        else
-        {        
+        else 
+        {
             tooltip.active = false;
             isTooltipActive = false;
+            Debug.Log("<color=red>Error: </color>Camera is not set in the Tooltip script or SceneContainer is not present in the scene.");
         }
     }
 
@@ -93,8 +134,6 @@ public class Tooltip : MonoBehaviour
         
         if (Input.GetKeyDown(KeyCode.F))
         {
-            Debug.Log("F key pressed");
-
             if (pressInteractCallback != null)
             {
                 pressInteractCallback.Invoke(eventData);

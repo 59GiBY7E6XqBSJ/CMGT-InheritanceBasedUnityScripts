@@ -4,11 +4,11 @@ using UnityEngine;
 
 public class PlayAudio : Trigger
 {
-    AudioSource audioSource;
-
-    [SerializeField] bool shouldBePlayedOnce = true;
+    protected private AudioSource audioSource;
     protected private bool hasBeenPlayed = false;
 
+    [SerializeField] bool shouldBePlayedOnce = true;
+    
     // Start is called before the first frame update
     void Start()
     {

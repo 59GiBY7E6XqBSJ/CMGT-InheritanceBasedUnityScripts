@@ -4,51 +4,86 @@ using UnityEngine;
 
 public class PlayerControls : MonoBehaviour
 {
-	protected private Rigidbody rb;
+	protected private float verticalVelocity;
+	protected private float groundedTimer;
+
+	// The character controller component attached to the player.
+	protected private CharacterController cc;
 
 	[Header("Player")]
 	[SerializeField] Player player;
 
-	[Header("Camera")]
-	[SerializeField] Transform cameraTransform;
+	[Header("Movement")]
+	[SerializeField] bool invertControls = false;
+    [SerializeField] float playerSpeed = 2.0f;
+    [SerializeField] float jumpHeight = 1.0f;
+    [SerializeField] float gravityValue = 9.81f;
 
     // Start is called before the first frame update
     void Start()
     {
-		rb = GetComponent<Rigidbody>();
+		cc = GetComponent<CharacterController>();
     }
 
 	// Update is called once per frame
-	void Update() 
-	{
-        
-	}
-
-	// Frame-rate independent FixedUpdate message for physics calculations.
-	void FixedUpdate()
+	void Update()
     {
-		if (player.canMove)
-		{
-			Vector3 moveVector = (cameraTransform.right * Input.GetAxis("Horizontal") + cameraTransform.forward * Input.GetAxis("Vertical")) * player.movementSpeed * Time.deltaTime;
+		// Component dependent actions //
+        
+        if (player != null)
+        {
+			if (player.canMove)
+			{
+				bool groundedPlayer = cc.isGrounded;
+        		if (groundedPlayer)
+        		{
+        		    groundedTimer = 0.2f;
+        		}
+        		if (groundedTimer > 0)
+        		{
+        		    groundedTimer -= Time.deltaTime;
+        		}
 
-			// Move the player with lerp to smooth the movement out when not using kinematic rigidbody
-			rb.MovePosition(Vector3.Lerp(rb.position, rb.position + moveVector * player.movementSpeed * Time.deltaTime, player.movementLerp));
+        		if (groundedPlayer && verticalVelocity < 0)
+        		{
+        		    verticalVelocity = 0f;
+        		}
 
-			// Rotate the main player body along with the camera direction (Not sure atm)
-			// playerTrimage.pngansform.eulerAngles = new Vector3(0, cameraTransform.rotation.eulerAngles.y, 0);
+        		verticalVelocity -= gravityValue * Time.deltaTime;
 
-			// Jump
-			if (Input.GetButtonDown("Jump") && IsGrounded()) {
-				rb.AddForce(Vector3.up * 8, ForceMode.Impulse);
+				float x, z;
+				x = Input.GetAxis("Horizontal");
+				z = Input.GetAxis("Vertical");
+
+				if (invertControls)
+				{
+					x = -x;
+					z = -z;
+				}
+
+				Vector3 move = (gameObject.transform.right * x + gameObject.transform.forward * z);		
+				move = Camera.main.transform.TransformDirection(move);
+        		move *= playerSpeed;
+
+        		if (Input.GetButtonDown("Jump"))
+        		{
+        		    if (groundedTimer > 0)
+        		    {
+        		        groundedTimer = 0;
+
+        		        verticalVelocity += Mathf.Sqrt(jumpHeight * 2 * gravityValue);
+        		    }
+        		}
+
+        		move.y = verticalVelocity;
+
+        		cc.Move(move * Time.deltaTime);
 			}
 		}
-	}
-
-	bool IsGrounded() 
-	{
-		//return Physics.Raycast(transform.position, Vector3.down, 1.5f);
-		float _distanceToTheGround = GetComponent<Collider>().bounds.extents.y;
-        return Physics.Raycast(transform.position, Vector3.down, _distanceToTheGround + 0.1f);
+		else 
+		{
+			Debug.Log("<color=red>Error: </color>Player is not set in the PlayerControls script.");
+		}
 	}
 
 	public void LockControls()
@@ -70,7 +105,5 @@ public class PlayerControls : MonoBehaviour
 		player.canMove = true;
 
 		player.footsteps.isOnSurface = true;
-
-		rb.isKinematic = false;
 	}
 }
